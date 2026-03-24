@@ -1,0 +1,16 @@
+
+
+version: '3.9'
+
+services:
+  api:
+    environment:
+      DEBUG: "True"
+      
+    build:
+      dockerfile: dockerfile
+      
+      cache_from:
+        - miapi-api:latest
+
+  postgres:
