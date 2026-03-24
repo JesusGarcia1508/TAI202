@@ -46,20 +46,7 @@ async def leer_usuarios(db: Session = Depends(get_db)):
     response_description="Confirmación de creación con los datos del nuevo usuario"
 )
 async def crear_usuario_endpoint(usuarioP: crear_usuario, db: Session = Depends(get_db)):
-    """
-    **POST /v1/usuarios/**
-    
-    Crea un nuevo usuario.
-    
-    **Parámetros:**
-    - nombre: Nombre del usuario (3-50 caracteres)
-    - edad: Edad del usuario (1-123 años)
-    - id: ID único del usuario (mayor que 0)
-    
-    **Retorna:**
-    - mensaje: Confirmación de creación
-    - Datos nuevos: Información del usuario creado
-    """
+
     nuevoU = dbUsuario(nombre=usuarioP.nombre, edad=usuarioP.edad)
     db.add(nuevoU)
     db.commit()
