@@ -2,29 +2,27 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 import os
 
-#1. Definimos la URL de conexión
-DATABASE_URL= os.getenv(
+DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    "postgresql://admin:123456@postgres:5432/DB_miapi"
+    "sqlite:///./miapi.db"
 )
 
-#2. Creamos el motor de la conexión
-engine= create_engine(DATABASE_URL)
-
-#3. Preparamos el gestionador de sesiones
-SessionLocal= sessionmaker(
-    autocommit= False,
-    autoflush= False,
-    bind= engine
+engine = create_engine(
+    DATABASE_URL,
+    connect_args={"check_same_thread": False} if "sqlite" in DATABASE_URL else {}
 )
 
-#4. Base declarativa del modelo
-Base= declarative_base()
+SessionLocal = sessionmaker(
+    autocommit=False,
+    autoflush=False,
+    bind=engine
+)
 
-#5. Obtener sesiones de cada petición
+Base = declarative_base()
+
 def get_db():
-    db= SessionLocal()
+    db = SessionLocal()
     try:
-        yield db #imprimir o mandar lo que tiene db en ese momento
+        yield db
     finally:
         db.close()

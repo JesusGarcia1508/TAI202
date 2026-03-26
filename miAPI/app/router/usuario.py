@@ -10,9 +10,6 @@ router = APIRouter(
     tags=["CRUD Usuarios"]
 )
 
-#*********************
-# Usuario CRUD
-#*********************
 @router.get(
     "/",
     summary="Obtener todos los usuarios",
@@ -20,21 +17,30 @@ router = APIRouter(
     response_description="Lista de usuarios con su ID, nombre y edad"
 )
 async def leer_usuarios(db: Session = Depends(get_db)):
-    """
-    **GET /v1/usuarios/**
-    
-    Obtiene la lista completa de usuarios.
-    
-    **Retorna:**
-    - status: Código de estado HTTP
-    - total: Cantidad total de usuarios
-    - usuarios: Lista de objetos usuario
-    """
     queryUsuarios = db.query(dbUsuario).all()
     return {
         "status": "200",
         "total": len(queryUsuarios),
         "usuarios": queryUsuarios
+    }
+
+
+@router.get(
+    "/{id}",
+    summary="Obtener usuario por ID",
+    description="Retorna los datos de un usuario específico por su ID",
+    response_description="Datos del usuario solicitado"
+)
+async def leer_usuario(id: int, db: Session = Depends(get_db)):
+    usuarioDb = db.query(dbUsuario).filter(dbUsuario.id == id).first()
+    if not usuarioDb:
+        raise HTTPException(
+            status_code=404,
+            detail="Usuario no encontrado"
+        )
+    return {
+        "status": "200",
+        "usuario": usuarioDb
     }
 
 
@@ -46,7 +52,6 @@ async def leer_usuarios(db: Session = Depends(get_db)):
     response_description="Confirmación de creación con los datos del nuevo usuario"
 )
 async def crear_usuario_endpoint(usuarioP: crear_usuario, db: Session = Depends(get_db)):
-
     nuevoU = dbUsuario(nombre=usuarioP.nombre, edad=usuarioP.edad)
     db.add(nuevoU)
     db.commit()
@@ -65,20 +70,6 @@ async def crear_usuario_endpoint(usuarioP: crear_usuario, db: Session = Depends(
     response_description="Usuario actualizado correctamente"
 )
 async def actualizar_usuario(id: int, usuario_actualizado: crear_usuario, db: Session = Depends(get_db)):
-    """
-    **PUT /v1/usuarios/{id}**
-    
-    Actualiza completamente un usuario (reemplaza todos sus datos).
-    
-    **Parámetros:**
-    - id: ID del usuario a actualizar
-    - nombre: Nuevo nombre
-    - edad: Nueva edad
-    
-    **Retorna:**
-    - mensaje: Confirmación de actualización
-    - datos_nuevos: Usuario actualizado
-    """
     usuarioDb = db.query(dbUsuario).filter(dbUsuario.id == id).first()
     if not usuarioDb:
         raise HTTPException(
@@ -104,19 +95,6 @@ async def actualizar_usuario(id: int, usuario_actualizado: crear_usuario, db: Se
     response_description="Usuario modificado parcialmente"
 )
 async def actualizar_parcial_usuario(id: int, usuario_parcial: dict, db: Session = Depends(get_db)):
-    """
-    **PATCH /v1/usuarios/{id}**
-    
-    Actualiza parcialmente un usuario (solo los campos enviados).
-    
-    **Parámetros:**
-    - id: ID del usuario a modificar
-    - usuario_parcial: Diccionario con los campos a actualizar
-    
-    **Retorna:**
-    - mensaje: Confirmación de modificación
-    - datos_nuevos: Usuario modificado
-    """
     usuarioDb = db.query(dbUsuario).filter(dbUsuario.id == id).first()
     if not usuarioDb:
         raise HTTPException(
@@ -143,19 +121,6 @@ async def actualizar_parcial_usuario(id: int, usuario_parcial: dict, db: Session
     response_description="Confirmación de eliminación"
 )
 async def eliminar_usuario(id: int, db: Session = Depends(get_db), usuarioAuth: str = Depends(verificar_peticion)):
-    """
-    **DELETE /v1/usuarios/{id}**
-    
-    Elimina un usuario (requiere autenticación HTTP Basic).
-    
-    **Parámetros:**
-    - id: ID del usuario a eliminar
-    - Autenticación: usuario "jesus" / contraseña "123456"
-    
-    **Retorna:**
-    - mensaje: Confirmación de eliminación
-    - usuario_eliminado: Datos del usuario eliminado
-    """
     usuarioDb = db.query(dbUsuario).filter(dbUsuario.id == id).first()
     if not usuarioDb:
         raise HTTPException(
