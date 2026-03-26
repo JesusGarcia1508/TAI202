@@ -6,15 +6,13 @@ uvicorn[standard]==0.24.0
 sqlalchemy==2.0.23
 psycopg2-binary==2.9.9
 
-# Validation
+# Validacion
 pydantic==2.5.0
 pydantic-settings==2.1.0
 
-# Security
+# seguridad
 python-multipart==0.0.6
 
-# Development (opcional)
-# pytest==7.4.3
-# httpx==0.25.2
+
 
 
